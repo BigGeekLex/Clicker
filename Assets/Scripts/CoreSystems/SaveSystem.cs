@@ -6,14 +6,13 @@ using UnityEngine;
 
 namespace CoreSystems
 {
-    public class SaveSystem : IEcsInitSystem, IEcsDestroySystem
+    public class SaveSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
     
         private EcsFilter<BusinessComponent, BusinessTextComponent, LevelUpComponent, IncomeProgressComponent, UpgradableGroupComponent> _businessFilter;
         private EcsFilter<BalanceComponent> _balanceFilter;
-
-        //private File defaultBusinessData;
+        
         private readonly string _businessFilePath = Application.persistentDataPath + "/BusinessData.json";
         private readonly string _balanceFilePath = Application.persistentDataPath + "/Balance.json";
     
@@ -27,8 +26,7 @@ namespace CoreSystems
                 balanceComponent.currentBalance = GetBalanceData().currentBalance;
             }
         }
-    
-        public void Destroy()
+        public void Run()
         {
             foreach (var idx in _balanceFilter)
             {
@@ -37,7 +35,7 @@ namespace CoreSystems
             }
         
             List<BusinessSaveData> saveDatas = new List<BusinessSaveData>();
-        
+            
             foreach (var idx in _businessFilter)
             {
                 ref BusinessComponent businessComponent = ref _businessFilter.Get1(idx);
@@ -55,7 +53,7 @@ namespace CoreSystems
         
             SaveBusinessData(saveDatas);
         }
-
+        
         private void InitializeBusinessData()
         {
             BusinessSaveData[] savedData = GetBusinessSaveData();
@@ -108,7 +106,7 @@ namespace CoreSystems
             }
             else
             {
-               data = File.ReadAllText(_balanceFilePath);   
+                data = File.ReadAllText(_balanceFilePath);   
             }
             return JsonUtility.FromJson<BalanceComponent>(data);
         }
